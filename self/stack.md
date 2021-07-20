@@ -134,3 +134,153 @@ DFS(v)
 end DFS()
 ```
 
+계산기:
+
+```
+문자열 수식 계산의 일반적 방법:
+1. 스택을 이용해서 중위표기법(infix notation)의 수식을 후위표기법으로 변경
+2. 후위표기법(연산자를 피연산자 뒤에 배치)의 수식을 스택을 이용해서 계산
+중위표기식의 후위표기식으로 변환 방법1:
+1. 수식의 각 연산자에 대해서 우선순위에 따라 괄호를 사용하여 다시 표현
+2. 각 연산자를 그에 대응하는 오른쪽 괄호의 뒤로 이동
+3. 괄호 제거
+중위표기식의 후위표기식으로 변환 방법2(스택 이용):
+토큰: 수식에서 의미 있는 최소의 단위
+1. 입력 받은 중위표기식에서 토큰을 읽음
+2. 토큰이 피연산자이면 토큰 출력
+3. 토큰이 연산자(괄호포함)일 경우
+-1.우선순위기 높으면 -> 스택에 push
+-2.우선순위가 안 높으면 -> 연산자의 우선순위가 토큰의 우선순위보다 작을 때까지 스택에서 pop한 후 토큰의 연산자를 push
+-3.만약 top에 연산자가 없으면 -> push
+-4.토큰이 오른쪽 괄호 ')'인 경우 -> 스택 top에 왼쪽 괄호 '('가 올 때까지 스택에 pop 연산을 수행 -> pop한 연산자 출력 ->왼쪽 괄호를 만나면 pop만 하고 출력하지는 않음
+-5.중위표기식에 더 읽을 것이 없다면 중지, 더 읽을 것이 있다면 1부터 반복
+-6.스택에 남아 있는 연산자를 모두 pop하여 출력
+스택 밖의 왼쪽 괄호는 우선 순위가 가장 높으며, 스택 안의 왼쪽 괄호는 우선 순위가 가장 낮음
+
+구체적) 연산자는 스택을 거쳐감, 피연산자는 후위표기법 수식에 출력됨 연산자에서 우선순위가 낮은 것은 아래에 있음. 
+icp(in-coming priority)와 isp(in-stack priority)를 고려해야 한다.
+if(icp > isp) push() #본인보다 순위가 낮은 것을 만날때까지 POP
+else pop()
+| 토큰 | ISP | ICP | 클수록 순위 높음
+|   ) |  -  |  -   |
+| *,/ |  2  |  2  |
+| +,- |  1  |  1  |
+|  (  |  0  |  3  |
+)는 여는 괄호를 만날 때까지 모두 POP, 순위가 같은 경우에도 POP.
+
+위의 과정을 끝낸 후(후위표기법 수식으로 만든 후),스택을 이용하여 계산할 경우
+1. 피연산자를 만나면 스택에 push함
+2. 연산자를 만나면 필요한 만큼의 피연산자를 스택에서 pop하여 연산하고, 연산결과를 다시 스택에 push함
+3. 수식이 끝나면, 마지막으로 스택을 pop하여 출력
+구체적) 연산자이면 스택에서 피연산자를 두 번 pop()하여 두 개 꺼냄 이 때, **(적용하는 순서는 먼저 꺼낸 것을 뒤에, 나중에 꺼낸 것을 앞에 놓아야 한다.)** ex) 연산자: '-', 피연산자: 2(나중), 8(먼저) => 2 - 8
+결과를 다시 스택에 집어 넣음
+
+문자열로 된 수식을 계산 시
+스택을 두 번 사용해서 처리했던 연산을 파이썬에서 제공되는 eval()내장 함수로 계산할 수 있음
+eval():
+-문자열로 된 수식을 계산
+-올바른 수식이 아닌 경우 SyntaxError 예외가 발생함
+-eval("6+5*(2-8)/2")는 문자열로 된 수식의 계산결과 반환함
+```
+
+백트래킹:
+
+```
+ 백트래킹: 해를 찾는 도중에 '막히면', (즉, 해가 아니면)되돌아가서 다시 해를 찾아가는 기법
+->최적화 문제와 결정 문제에 사용.-문제의 조건을 만족하는 해가 존재하는지의 여부를 'yes' 또는 'no'로 답하는 문제 ex)미로 찾기, n-Queen 문제, Map coloring, 부분 집합의 합(Subset Sum) 문제 등
+ 활용 예시: 미로찾기 이동한 경로를 stack에 push, 이동하지 못하면 pop하면서 돌아감
+ 백트래킹과 깊이 우선 탐색의 차이:
+ 
+```
+
+| 백트래킹                                                     | 깊이 우선 탐색                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 어떤 노드에서 출발하는 경로가 해결책으로 이어질 것 같지 않으면 더 이상 그 경로를 따라가지 않음으로써 시도의 횟수를 줄임 | 모든 경로를 추적                                             |
+| 가지치기(prunning)                                           | N! 가지의 경우의 수를 가진 문제에 대해 깊이 우선 탐색을 가하면 처리 불가능한 문제 |
+| 불필요한 경로의 조기 차단                                    | 모든 후보를 검사                                             |
+| N! 가지의 경우의 수를 가진 문제에 대해 백트래킹에 가하면 일반적으로 경우의 수가 줄어들지만 이 역시 최악의 경우에는 여전히 지수함수 시간(Exponential Time)을 요하므로 처리 불가능 |                                                              |
+| 모든 후보를 검사하지 않음                                    |                                                              |
+
+```
+ 백트래킹 기법은 어떤 노드의 유망성을 점검한 후에 유망하지 않다-어떤 노드를 방문하였을 때 그 노드를 포함한 경로가 해답이 될 수 없으면-고 결정되면 그 노드의 부모로 되돌아가 다음 자식 노드로 감. 해답의 가능성이 있으면 유망
+ 가지치기(Pruning): 유망하지 않은 노드가 포함되는 경로는 더 이상 고려하지 않음
+ 알고리즘의 절차:
+ 1. 상태 공간 Tree의 깊이 우선 검색을 실시
+ 2. 각 노드가 유망한지를 점검
+ 3. 만일 그 노드가 유망하지 않으면, 그 노드의 부모 노드로 돌아가서 검색을 계속
+ n-Queen문제에 적용시 알고리즘: 
+n*n의 정사각형 안에 n개의 queen을 배치하는 문제로, 모든 queen은 자신의 일직선상 및 대각선상에 아무것도 놓이지 않는 문제
+def checknode(v): #node
+	if promising(v):
+		if there is a solution at v:
+			write the solution
+		else:
+			for u in each child of v:
+				checknode(u)
+
+ power set: 어떤 집합의 공집합과 자기자신을 포함한 모든 부분집합, 구하고자 하는 어떤 집합의 원소 개수가 n일 경우 부분집합의 개수는 2^n이 나옴
+ 백트래킹 기법으로 power set 구하기:
+일반적인 백트래킹 접근 방법 이용
+n개의 원소가 들어있는 집합의 2^n개의 부분집합을 만들 때, True 또는 False 값을 가지는 항목들로 구성된 n개의 리스트를 만드는 방법 이용
+리스트의 i번째 항목은 i번째의 원소가 부분집합의 값인지 아닌지를 나타내는 값
+def backtrack(a, k, input):
+	global MAXCANDIDATES
+	c = [0]*MAXCANDIDATES
+	
+	if k == input:
+		process_solution(a, k) #답이면 원하는 작업을 한다
+	else:
+		k += 1
+		ncandidates = contstruct_candidates(a, k, input, c)
+		for i in range(ncandidates):
+			a[k] = c[i]
+			backtrack(a,k,input)
+def construct_candidates(a, k, input, c):
+	c[0] = True
+	c[1] = False
+	return 2
+	
+def process_solution(a,k):
+	print("(", end="")
+	for i in range(k+1):
+		if a[i:
+		print(i, end= " ")
+	print(")")
+MAXCANDIDATES = 100
+NMAX = 100
+a = [0] * NMAX
+backtrack(a,0,3)
+
+순열을 구하는 백트래킹 알고리즘:
+def backtrack(a, k ,input):
+	global MAXCANDIDATES
+	c = [0] * MAXCANDIDATES
+	
+	if k == input:
+		for i in range(1, k+1):
+			print(a[i], end=" ")
+		print()
+	else:
+		k += 1
+		ncandidates = construct_candidates(a, k, input, c)
+		for i in range(ncandidates):
+			a[k] = c[i]
+			backtrack(a, k, input)
+			
+def construct_candidates(a, k, input, c):
+	in_perm = [False] * NMAX
+	
+	for i in range(1,k):
+		in_perm[a[i]] = True
+	
+	ncandidates = 0
+	for i in range(1, input+1):
+		if in_perm[i] == False:
+			c[ncandidates] = i
+			ncandidates += 1
+	return ncandidates
+		
+```
+
+
+
