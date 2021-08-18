@@ -62,7 +62,7 @@
   - 하나의 박스는 content, padding, border, margin으로 이루어짐
     - margin: 테두리 바깥의 외부 영역, 배경색을 지정할 수 없다.
     - border: 테두리 영역
-    - content: 그링나 이미지 등 요소의 실제 내용
+    - content: 그림이나 이미지 등 요소의 실제 내용
     - padding: 테두리 안쪽의 내부 여백, 요소에 적용된 배경색, 이미지는 padding까지 적용
   - .margin{top,...}로 상하좌우 여백 설정 가능
   - .margin-padding 그냥 몇 px인지 적으면 상하좌우 모두 적용
